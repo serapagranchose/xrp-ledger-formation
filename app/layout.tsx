@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Pixelify_Sans } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/navbar";
 
 const inter = Pixelify_Sans({ subsets: ["latin"] });
 
@@ -16,7 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }

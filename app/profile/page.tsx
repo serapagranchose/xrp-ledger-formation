@@ -1,6 +1,6 @@
 "use client";
 
-import { Account, Wallet, Networks, XRPLClient, useBalance, useTokens, useIsConnected, useMintToken } from "@nice-xrpl/react-xrpl";
+import { Account, Wallet, Networks, XRPLClient, useBalance, useTokens, useIsConnected, useBurnToken, useMintToken } from "@nice-xrpl/react-xrpl";
 import Footer from "./../components/footer";
 import { use, useState } from "react";
 // import { RippleAPI } from "ripple-lib";
@@ -9,6 +9,26 @@ import { use, useState } from "react";
 const address = "rZTbKwGBRf9vDw7QMpTCoPym4mn2r6Ui3";
 const secret = 'sEdTDxhkFNtcKuQsuViju4yNJgCpNBC';
 const sequence = '46069813';
+
+function BurnNFT({ id } : { id: string }) {
+  const burnToken = useBurnToken();
+  const [burning, setBurning] = useState<boolean>(false);
+
+  return (
+    <button
+    className="bg-black text-white p-4 rounded-lg"
+    onClick={async () => {
+      setBurning(true);
+      const result = await burnToken(id);
+      console.log('UI : ', result);
+      setBurning(false);
+    }}
+    >
+      {burning ? 'Burning...' : 'Burn NFT'}
+    </button>
+  );
+
+}
 
 function ShowBalance() {
   const balance = useBalance();
@@ -26,10 +46,13 @@ function ShowNFTS() {
       <h1 className="text-4xl font-bold">NFTs :</h1>
       {tokens.length ?
       tokens.map((token) => (
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-2xl font-bold">{token.issuer}</h1>
-          <h1 className="text-2xl font-bold">{token.id}</h1>
-          <h1 className="text-xl font-bold">{token.uri}</h1>
+        <div className="flex flex-row space-y-2">
+          <div>
+            <h1 className="text-2xl font-bold">{token.issuer}</h1>
+            <h1 className="text-2xl font-bold">{token.id}</h1>
+            <h1 className="text-xl font-bold">{token.uri}</h1>
+          </div>
+          <BurnNFT id={token.id} />
         </div>
       ))
       : <h1 className="text-2xl font-bold">No NFTs found...</h1>}

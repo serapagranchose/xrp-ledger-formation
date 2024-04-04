@@ -1,12 +1,12 @@
 "use client";
 
-import { Account, Wallet, Networks, XRPLClient, useBalance, useIsConnected, useMintToken } from "@nice-xrpl/react-xrpl";
+import { Account, Wallet, Networks, XRPLClient, useBalance, useTokens, useIsConnected, useMintToken } from "@nice-xrpl/react-xrpl";
 import Footer from "./../components/footer";
 import { use, useState } from "react";
 // import { RippleAPI } from "ripple-lib";
 
 // const api = new RippleAPI({ server: "wss://s.altnet.rippletest.net:51233/" });
-const address = 'rQwTib8jtVgo3KVUannk2tYq6iaZ73Ky2K';
+const address = "rZTbKwGBRf9vDw7QMpTCoPym4mn2r6Ui3";
 const secret = 'sEdTDxhkFNtcKuQsuViju4yNJgCpNBC';
 const sequence = '46069813';
 
@@ -18,9 +18,29 @@ function ShowBalance() {
   );
 }
 
+function ShowNFTS() {
+  const tokens = useTokens();
+
+  return (
+    <div className="flex flex-col space-y-4">
+      <h1 className="text-4xl font-bold">NFTs :</h1>
+      {tokens.length ?
+      tokens.map((token) => (
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-2xl font-bold">{token.issuer}</h1>
+          <h1 className="text-2xl font-bold">{token.id}</h1>
+          <h1 className="text-xl font-bold">{token.uri}</h1>
+        </div>
+      ))
+      : <h1 className="text-2xl font-bold">No NFTs found...</h1>}
+    </div>
+  );
+}
+
 function Profile() {
   const [nftName, setNftName] = useState<string>('');
   const [sending, setSending] = useState<boolean>(false);
+  const [nftCreated, setNftCreated] = useState<boolean>(false);
 
   const mintToken = useMintToken();
 
@@ -51,11 +71,13 @@ function Profile() {
                   console.log('UI : ', result);
                   setSending(false);
                   setNftName('');
+                  setNftCreated(true);
                 }}
                 >Create NFT</button>
               ) :
               (<button className="bg-black text-white p-4 rounded-lg opacity-50" disabled>Enter a name...</button>)
               )}
+              <ShowNFTS />
           </div>
           <Footer />
       </main>

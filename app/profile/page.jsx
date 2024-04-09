@@ -64,11 +64,10 @@ function ShowNFTS() {
   return (
     <>
       <h1 className="text-4xl font-bold">NFTs ({tokens.length}) :</h1>
-      <div className="flex flex-row space-y-4 flex-wrap">
+      <div className="flex flex-row space-y-2 bg-gray-100 space-around m-4 flex-wrap center">
         {tokens.length ?
         tokens.map((token) => (
-          <div className="flex flex-row w-150 h-150 space-y-2 justify-between w-450 bg-gray-100 space-between m-2" key={token.id}>
-            <div className="items-center flex flex-col space-y-4 m-4">
+            <div className="items-center flex flex-col space-y-4 m-4" key={token.id}>
               <img
                 src={token.uri.split('|')[1]}
                 className="w-64 h-64"
@@ -79,7 +78,6 @@ function ShowNFTS() {
                 <BurnNFT id={token.id} uri={token.uri.split('|')[1].substring(token.uri.split('|')[1].length - 46)} />
               </div>
             </div>
-          </div>
         ))
         : <h1 className="text-2xl font-bold">No NFTs found...</h1>}
       </div>

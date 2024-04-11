@@ -3,35 +3,6 @@ import { useState } from 'react';
 import { Account, Networks, XRPLClient, useBalance, Wallet } from "@nice-xrpl/react-xrpl";
 import Footer from '../components/footer';
 
-function ShowBalance() {
-  const balance = useBalance();
-
-  return (
-    <div>Balance: {balance}</div>
-  );
-}
-
-function WalletLog() {
-  return (
-    <div>
-      <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">
-        Wallet
-      </h3>
-      <div className="mt-2">
-        {/* <div className="text-sm text-gray-500">
-          <XRPLClient network={Networks.Testnet}>
-            <Wallet seed={mySeed}>
-              <Account >
-                <ShowBalance />
-              </Account>
-            </Wallet>
-          </XRPLClient>
-        </div> */}
-      </div>
-    </div>
-  );
-}
-
 export default function LoginPage() {
   const [seed, setSeed] = useState('');
   const [isLog, setLog] = useState('');
@@ -46,6 +17,14 @@ export default function LoginPage() {
     event.preventDefault();
     setLog(true);
   };
+
+  const ShowBalance = () => {
+    const balance = useBalance();
+
+    return (
+      <div>Balance: {balance}</div>
+    );
+  }
 
   const WalletLog = () => {
     return (
@@ -69,38 +48,67 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+      <div className="relative w-auto my-6 mx-auto max-w-3xl">
+        <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
 
-      <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-      <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-
+          <div className="relative p-6 flex-auto">
             {isLog ? <WalletLog /> : null}
 
-            <h2 className="text-sm text-gray-500">Formulaire de saisie du nom d'utilisateur</h2>
+            <div className="flex justify-center">
+              <h1 className="text-2xl font-medium leading-6 text-gray-900 mb-4">Connect to your wallet</h1>
+            </div>
             <form onSubmit={handleForm}>
               <div>
-                <label htmlFor="seed" className="text-sm text-gray-500">Nom d'utilisateur :</label>
+                <label htmlFor="seed" className="text-lg text-gray-700">Seed :</label>
                 <input
                   type="text"
                   id="seed"
                   value={seed}
                   onChange={handleUserInput}
                   required
-                  className="border-gray-200 border-2 rounded-md ml-2 text-gray-500"
+                  className="border-gray-600 border-2 rounded-md ml-2 text-gray-500"
                 />
               </div>
-              <button type="submit" className="bg-gray-500 rounded-md p-2">Soumettre</button>
+              <div className="flex justify-center mt-4">
+                <button type="submit" className="bg-gray-500 rounded-md p-2">Login</button>
+              </div>
             </form>
-
           </div>
+
         </div>
       </div>
-
-
-      <Footer />
-
     </div>
   );
 }
+
+{/* <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+
+<span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+<div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+    <div className="mt-3 text-center">
+
+      {isLog ? <WalletLog /> : null}
+
+      <h1 className="text-gray-500">Login</h1>
+      <form onSubmit={handleForm}>
+        <div>
+          <label htmlFor="seed" className="text-sm text-gray-500">Seed :</label>
+          <input
+            type="text"
+            id="seed"
+            value={seed}
+            onChange={handleUserInput}
+            required
+            className="border-gray-200 border-2 rounded-md ml-2 text-gray-500"
+          />
+        </div>
+        <button type="submit" className="bg-gray-500 rounded-md p-2">Soumettre</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+</div> */}

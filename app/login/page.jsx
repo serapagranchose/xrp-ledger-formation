@@ -1,13 +1,10 @@
 'use client'
 import { useState } from 'react';
-import { Account, Networks, XRPLClient, useBalance, Wallet } from "@nice-xrpl/react-xrpl";
-import Footer from '../components/footer';
+import { Account, Networks, XRPLClient, useBalance, Wallet, fromSeed } from "@nice-xrpl/react-xrpl";
 
 export default function LoginPage() {
   const [seed, setSeed] = useState('');
   const [isLog, setLog] = useState('');
-
-  const mySeed = 'sEdVRJhxG6pdCEXdhs3kCtXZxTYCDV5';
 
   const handleUserInput = (event) => {
     setSeed(event.target.value);
@@ -48,7 +45,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+    <div className="justify-center items-center flex overflow-x-hidden overflow fixed inset-0 outline-none focus:outline-none">
       <div className="relative w-auto my-6 mx-auto max-w-3xl">
         <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
 
@@ -64,9 +61,11 @@ export default function LoginPage() {
                 <input
                   type="text"
                   id="seed"
+                  title="Seed must contain at least 29 characters with only alphanumeric characters"
                   value={seed}
                   onChange={handleUserInput}
                   required
+                  pattern="[a-zA-Z0-9]{29,}"
                   className="border-gray-600 border-2 rounded-md ml-2 text-gray-500"
                 />
               </div>

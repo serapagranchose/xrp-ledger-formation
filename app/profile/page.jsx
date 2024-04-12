@@ -122,7 +122,7 @@ function Profile({ seed }) {
 export default function ProfilePage() {
   const [userInput, setUserInput] = useState('');
   const [seed, setSeed] = useState('');
- 
+
   return (
     <XRPLClient network={Networks.Testnet}>
       {seed ? (

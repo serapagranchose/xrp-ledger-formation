@@ -1,8 +1,7 @@
 import { useBurnToken } from "@nice-xrpl/react-xrpl";
 import { useState } from "react";
 
-export default function BurnNFT({ id, uri }) {
-  const burnToken = useBurnToken();
+export default function BurnNFT({ getAllNFTS, client, id, uri, userWallet }) {
   const [burning, setBurning] = useState(false);
 
   const burnImage = async (hash) => {
@@ -23,17 +22,32 @@ export default function BurnNFT({ id, uri }) {
       console.log(error);
     }
   };
- 
+
   return (
     <button
     className="bg-black text-white p-4 rounded-lg h-12 m-4"
     onClick={async () => {
       setBurning(true);
+      console.log('Burning NFT URI : ', uri);
       const imgBurn = await burnImage(uri);
       console.log('Image Burn : ', imgBurn);
-      const result = await burnToken(id);
-      console.log('Token Burn : ', result);
-      setBurning(false);
+      try {
+        const tx = {
+          "TransactionType": "NFTokenBurn",
+          "NFTokenID": id,
+          "Account": userWallet?.classicAddress,
+        }
+        const submitted_tx = await client.submitAndWait(tx, {
+          autofill: true,
+          wallet: userWallet,
+        })
+        console.log('Burn NFT : ', submitted_tx);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setBurning(false);
+        getAllNFTS({ address: userWallet?.classicAddress });
+      }
     }}
     >
       {burning ? 'Burning...' : 'Burn NFT'}

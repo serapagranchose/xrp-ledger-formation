@@ -1,21 +1,18 @@
 "use client";
 
 import Footer from "../components/footer";
-import { XRPLClient, Networks, Account, useTokens, useIsConnected, useGetSellOffers } from "@nice-xrpl/react-xrpl";
-import { LoadWallet } from "../components/LoadWallet";
 import { useEffect, useState } from "react";
-import { Client, Wallet
+import { Client, Wallet, convertHexToString
  } from "xrpl";
 
-function NFTInfos ({ token, updateShow, updateOfferIndex, show }) {
+function NFTInfos ({ token, updateShow, updateOfferIndex, client, show }) {
   const [sellOffers, setSellOffers] = useState([]);
-  const getSellOffers = useGetSellOffers();
   const [loadingOffers, setLoadingOffers] = useState(false);
 
   const changeOfferIndex = (req) => {
     updateOfferIndex(req);
   }
- 
+
   const changeShow = (req) => {
     updateShow(req);
   }
@@ -27,9 +24,13 @@ function NFTInfos ({ token, updateShow, updateOfferIndex, show }) {
       onClick={async () => {
         setLoadingOffers(true);
         try {
-          console.log(token.token)
-          const offers = await getSellOffers(token.id);
-          setSellOffers(offers);
+          console.log(token.NFTokenID)
+          const offers = await client.request({
+            "command": "nft_sell_offers",
+            "nft_id": token.NFTokenID,
+          })
+          console.log('Offers : ', offers);
+          setSellOffers(offers.result.offers);
         } catch (error) {
           console.log(error);
         } finally {
@@ -45,13 +46,13 @@ function NFTInfos ({ token, updateShow, updateOfferIndex, show }) {
           <div className="flex flex-col space-y-4">
             {sellOffers.map((offer) => (
               console.log(offer),
-              <div className="flex flex-row space-x-4 items-center mr-2 ml-2" key={offer.index}>
+              <div className="flex flex-row space-x-4 items-center mr-2 ml-2" key={offer.nft_offer_index}>
                 <h1 className="text-xl font-bold">Price : {offer.amount / 1000000} XRP</h1>
                 <button
                 className="bg-black text-white p-4 rounded-lg h-12 m-4"
                 onClick={async () => {
                   changeShow(true);
-                  changeOfferIndex(offer.index);
+                  changeOfferIndex(offer.nft_offer_index);
                 }}
                 >
                   Accept offer
@@ -66,13 +67,13 @@ function NFTInfos ({ token, updateShow, updateOfferIndex, show }) {
 }
 
 function ShowSome() {
-  const [client] = useState(new Client("wss://s.altnet.rippletest.net:51233"));
-  const tokens = useTokens();
-  // const isConnected = useIsConnected();
+  const [client] = useState(new Client("wss://s.altnet.rippletest.net:51233", { connectionTimeout: 5000 }));
+  let brokerWallet;
   const [show, setShow] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const [offerIndex, setOfferIndex] = useState('');
   const [userSeed, setUserSeed] = useState('');
+  const [ttokens, setTokens] = useState();
 
   const updateShow = (req) => {
     setShow(req);
@@ -82,33 +83,53 @@ function ShowSome() {
     setOfferIndex(req);
   }
 
-  useEffect(() => {
+  const getAllNFTS = async () => {
+    const req = await client.request({
+      "command": "account_nfts",
+      "account": brokerWallet.classicAddress,                     // changer adresse
+    });
+    console.log('res : ', req.result.account_nfts[0]);
+    setTokens(req.result.account_nfts);
+  }
+
+  const connectClient = async () => {
     client.connect().then(() => {
       console.log('Connected to XRPL');
       console.log(process.env.NEXT_PUBLIC_BROKER_ADRESS);
+      brokerWallet = Wallet.fromSeed(process.env.NEXT_PUBLIC_BROKER_SECRET);
+      getAllNFTS();
     });
+  }
+
+  const getSource = (uri) => {
+    return convertHexToString(uri);
+  }
+
+  useEffect(() => {
+    connectClient();
   }, []);
 
   return (
     <>
       <div className="flex flex-col">
-        <h1 className="text-4xl font-bold">NFTs to sale ({tokens.length}) :</h1>
+        <h1 className="text-4xl font-bold">NFTs to sale ({ttokens?.length}) :</h1>
         <div className="flex flex-row space-y-2 space-around m-4 flex-wrap center max-w-screen-xl">
-          {tokens.length ?
-          tokens.map((token) => (
+          {ttokens?.length ?
+          ttokens.map((token) => (
             <div className="items-center flex flex-col space-y-4 m-4" key={token.id}>
               <img
-                src={token.uri?.split('|')[1]}
+                // src={token.uri?.split('|')[1]}
+                src={getSource(token.URI).split('|')[1]}
                 className="w-64 h-64"
                 alt="ipfs image"
               />
               <div className="flex flex-col">
                 <div className="flex flex-row space-x-4 items-center mr-2 ml-2">
                   <div className="flex flex-col">
-                    <h1 className="text-xl font-bold">Name : {token.uri?.split('|')[0]}</h1>
+                    <h1 className="text-xl font-bold">Name : {getSource(token.URI).split('|')[0]}</h1>
                   </div>
                 </div>
-                <NFTInfos token={token} key={token.id} updateShow={updateShow} show={show} updateOfferIndex={updateOfferIndex} />
+                <NFTInfos token={token} key={token.id} updateShow={updateShow} client={client} show={show} updateOfferIndex={updateOfferIndex} />
               </div>
             </div>
           ))
@@ -167,19 +188,12 @@ function ShowSome() {
 }
 
 export default function MarketPlace() {
-
   return (
-    <XRPLClient network={Networks.Testnet}>
-      <LoadWallet seed={process.env.NEXT_PUBLIC_BROKER_SECRET}>
-        <Account>
-          <main className="flex min-h-screen flex-col items-center justify-between p-24">
-            <div className="items-center justify-between font-mono text-sm lg:flex">
-              <ShowSome />
-            </div>
-            <Footer />
-          </main>
-        </Account>
-      </LoadWallet>
-    </XRPLClient>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <div className="items-center justify-between font-mono text-sm lg:flex">
+        <ShowSome />
+      </div>
+      <Footer />
+    </main>
   );
 }

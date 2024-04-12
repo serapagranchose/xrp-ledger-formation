@@ -11,7 +11,7 @@ const address = "rZTbKwGBRf9vDw7QMpTCoPym4mn2r6Ui3";
 const secret = 'sEdTDxhkFNtcKuQsuViju4yNJgCpNBC';
 const sequence = '46069813';
 
-function Profile() {
+function Profile({ seed }) {
   const [nftName, setNftName] = useState('');
   const [sending, setSending] = useState(false);
   const [cid, setCid] = useState('');
@@ -111,7 +111,7 @@ function Profile() {
               ) :
               (<button className="bg-black text-white p-4 rounded-lg opacity-50" disabled>Upload a file then enter a name...</button>)
               )}
-              <ShowNFTS />
+              <ShowNFTS userSeed={seed} />
           </div>
           <Footer />
       </main>
@@ -127,7 +127,7 @@ export default function ProfilePage() {
     <XRPLClient network={Networks.Testnet}>
       {seed ? (
         <Wallet seed={seed}>
-          <Profile />
+          <Profile seed={seed} />
         </Wallet>
       ) : (
         <div className="flex min-h-screen flex-col items-center p-24">

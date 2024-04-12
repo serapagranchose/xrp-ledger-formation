@@ -2,10 +2,10 @@
 
 import Footer from "../components/footer";
 import { useEffect, useState } from "react";
-import { Client, Wallet, convertHexToString
- } from "xrpl";
+import { Client, Wallet, convertHexToString } from "xrpl";
+import { useRouter } from "next/navigation";
 
-function NFTInfos ({ token, updateShow, updateOfferIndex, client, show }) {
+function NFTInfos({ token, updateShow, updateOfferIndex, client, show }) {
   const [sellOffers, setSellOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
 
@@ -20,48 +20,68 @@ function NFTInfos ({ token, updateShow, updateOfferIndex, client, show }) {
   return (
     <>
       <button
-      className="bg-black text-white p-4 rounded-lg h-12 m-4"
-      onClick={async () => {
-        setLoadingOffers(true);
-        try {
-          console.log(token.NFTokenID)
-          const offers = await client.request({
-            "command": "nft_sell_offers",
-            "nft_id": token.NFTokenID,
-          })
-          console.log('Offers : ', offers);
-          setSellOffers(offers.result.offers);
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoadingOffers(false);
-        }
-      }}
+        className="bg-black text-white p-4 rounded-lg h-12 m-4"
+        onClick={async () => {
+          setLoadingOffers(true);
+          try {
+            console.log(token.NFTokenID)
+            const offers = await client.request({
+              "command": "nft_sell_offers",
+              "nft_id": token.NFTokenID,
+            })
+            console.log('Offers : ', offers);
+            setSellOffers(offers.result.offers);
+          } catch (error) {
+            console.log(error);
+          } finally {
+            setLoadingOffers(false);
+          }
+        }}
       >
-        {loadingOffers ? 'Loading...' : 'See offers'}
+        {loadingOffers ? (
+          <div>
+            <span className="inline-block h-4 w-4 animate-spin rounded-full mb-0.5 mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+              role="status">
+            </span>
+            Loading...
+          </div>)
+          : 'See offers'}
       </button>
-      {sellOffers.length ? (
-        <div className="flex flex-col">
-          <h1 className="text-xl font-bold">Offers :</h1>
-          <div className="flex flex-col space-y-4">
-            {sellOffers.map((offer) => (
-              console.log(offer),
-              <div className="flex flex-row space-x-4 items-center mr-2 ml-2" key={offer.nft_offer_index}>
-                <h1 className="text-xl font-bold">Price : {offer.amount / 1000000} XRP</h1>
-                <button
-                className="bg-black text-white p-4 rounded-lg h-12 m-4"
-                onClick={async () => {
-                  changeShow(true);
-                  changeOfferIndex(offer.nft_offer_index);
-                }}
-                >
-                  Accept offer
-                </button>
+      {sellOffers.length ?
+        (
+          <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-10 rounded-lg shadow-xl">
+
+              <div className="flex flex-col">
+                <h1 className="text-3xl font-bold text-center mb-3">Offers</h1>
+                <div className="flex flex-col space-y-4">
+                  {sellOffers.map((offer) => (
+                    console.log(offer),
+                    <div key={offer.nft_offer_index}>
+                      <h1 className="text-xl font-bold">Name <span className='pl-3'>:</span> {convertHexToString(token.URI).split('|')[0]}</h1>
+                      <h1 className="text-xl font-bold">Price : {offer.amount / 1000000} XRP</h1>
+                      <div className="flex justify-center items-center mt-7 space-x-4">
+                        <button onClick={() => { setLoadingOffers(false); setSellOffers(false) }} className="bg-red-500 text-white px-4 py-2 rounded-md">Decline</button>
+                        <button
+                          className="bg-black text-white rounded-md px-4 py-2 "
+                          onClick={async () => {
+                            changeShow(true);
+                            changeOfferIndex(offer.nft_offer_index);
+                            setLoadingOffers(false);
+                            setSellOffers(false)
+                          }}
+                        >
+                          Accept offer
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
+
+
+            </div>
+          </div>) : null}
     </>
   )
 }
@@ -74,6 +94,7 @@ function ShowSome() {
   const [offerIndex, setOfferIndex] = useState('');
   const [userSeed, setUserSeed] = useState('');
   const [ttokens, setTokens] = useState();
+  const router = useRouter();
 
   const updateShow = (req) => {
     setShow(req);
@@ -113,69 +134,92 @@ function ShowSome() {
     <>
       <div className="flex flex-col">
         <h1 className="text-4xl font-bold">NFTs to sale ({ttokens?.length}) :</h1>
+
         <div className="flex flex-row space-y-2 space-around m-4 flex-wrap center max-w-screen-xl">
           {ttokens?.length ?
-          ttokens.map((token) => (
-            <div className="items-center flex flex-col space-y-4 m-4" key={token.id}>
-              <img
-                // src={token.uri?.split('|')[1]}
-                src={getSource(token.URI).split('|')[1]}
-                className="w-64 h-64"
-                alt="ipfs image"
-              />
-              <div className="flex flex-col">
-                <div className="flex flex-row space-x-4 items-center mr-2 ml-2">
+            ttokens.map((token, index) => (
+              <div className="bg-white rounded-lg shadow-xl mx-6 p-5 mt-2" key={index}>
+
+                <div className="items-center flex flex-col space-y-4 " key={token.id}>
+                  <img
+                    // src={token.uri?.split('|')[1]}
+                    src={getSource(token.URI).split('|')[1]}
+                    className="w-64 h-64"
+                    alt="ipfs image"
+                  />
                   <div className="flex flex-col">
-                    <h1 className="text-xl font-bold">Name : {getSource(token.URI).split('|')[0]}</h1>
+                    <div className="flex flex-row space-x-4 items-center mr-2 ml-2">
+                      <div className="flex flex-col">
+                        <h1 className="text-xl font-bold">Name : {getSource(token.URI).split('|')[0]}</h1>
+                      </div>
+                    </div>
+                    <NFTInfos token={token} key={token.id} updateShow={updateShow} client={client} show={show} updateOfferIndex={updateOfferIndex} />
                   </div>
                 </div>
-                <NFTInfos token={token} key={token.id} updateShow={updateShow} client={client} show={show} updateOfferIndex={updateOfferIndex} />
+
               </div>
-            </div>
-          ))
-          : <h1 className="text-2xl font-bold">No NFTs found...</h1>}
+            ))
+            :
+            <h1 className="text-2xl font-bold" >
+              <span className="inline-block h-4 w-4 animate-spin rounded-full mb-0.5 mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+                role="status">
+              </span>
+              No NFTs found...
+            </h1>
+          }
         </div>
+
       </div>
+
       {show && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
           <div className="flex flex-col bg-white p-8 rounded-lg space-y-4">
             <h1 className="text-4xl font-bold">Accept Sell Offer</h1>
-            <input type="text" placeholder="Seed" value={userSeed} className="w-64" onChange={(e) => setUserSeed(e.target.value)} />
+            <input type="text" placeholder="Your seed" value={userSeed} className="outline-none border-2 border-gray-300 rounded-md" onChange={(e) => setUserSeed(e.target.value)} />
             <button
-            className="bg-black text-white p-4 rounded-lg"
-            disabled={userSeed === ''}
-            onClick={async () => {
-              setAccepting(true);
-              console.log('Offer Index : ', offerIndex);
-              const userWallet = Wallet.fromSeed(userSeed);
-              try {
-                const tx = {
-                  "TransactionType": "NFTokenAcceptOffer",
-                  "Account": userWallet.classicAddress,
-                  "NFTokenSellOffer": offerIndex,
+              className="bg-black text-white p-4 rounded-lg"
+              disabled={userSeed === ''}
+              onClick={async () => {
+                setAccepting(true);
+                console.log('Offer Index : ', offerIndex);
+                const userWallet = Wallet.fromSeed(userSeed);
+                try {
+                  const tx = {
+                    "TransactionType": "NFTokenAcceptOffer",
+                    "Account": userWallet.classicAddress,
+                    "NFTokenSellOffer": offerIndex,
+                  }
+                  const submitted_tx = await client.submitAndWait(tx, {
+                    autofill: true,
+                    wallet: userWallet,
+                  })
+                  console.log('Accept Offer : ', submitted_tx);
+                  router.refresh();
+                } catch (error) {
+                  console.log(error);
+                } finally {
+                  setAccepting(false);
+                  setShow(false);
+                  setUserSeed('');
                 }
-                const submitted_tx = await client.submitAndWait(tx, {
-                  autofill: true,
-                  wallet: userWallet,
-                })
-                console.log('Accept Offer : ', submitted_tx);
-              } catch (error) {
-                console.log(error);
-              } finally {
-                setAccepting(false);
-                setShow(false);
-                setUserSeed('');
-              }
-            }}
+              }}
             >
-              {accepting ? 'Buying...' : 'Buy The NFT !!!!'}
+              {accepting ? (
+                <div>
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+                    role="status">
+                  </span>
+                  Buying...
+                </div>)
+                :
+                'Buy The NFT !!!!'}
             </button>
             <button
-            className="bg-black text-white p-4 rounded-lg"
-            onClick={() => {
-              setUserSeed('');
-              setShow(false);
-            }}
+              className="bg-red-500 text-white p-4 rounded-lg"
+              onClick={() => {
+                setUserSeed('');
+                setShow(false);
+              }}
             >
               Cancel
             </button>
@@ -189,7 +233,7 @@ function ShowSome() {
 
 export default function MarketPlace() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center justify-between p-14">
       <div className="items-center justify-between font-mono text-sm lg:flex">
         <ShowSome />
       </div>

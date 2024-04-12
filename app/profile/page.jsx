@@ -62,58 +62,78 @@ function Profile({ seed }) {
   };
 
   return (
+
     <Account>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-          <h1 className="text-4xl font-bold">Profile</h1>
-          <div className="space-y-12">
-              <div>
-                  <h1 className="text-4xl font-bold">Address :</h1>
-                  <h1 className="text-4xl font-bold">{ userAddress }</h1>
+
+
+        {/* <div class="fixed flex items-center justify-center">
+          <div class="relative w-auto max-w-md mx-auto my-6">
+            <div class="relative bg-white p-6 rounded-xl shadow-xl">
+
+              <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="flex flex-col items-center p-10"> */}
+
+
+                  <h1 className="text-4xl font-bold">Profile</h1>
+                  <div className="space-y-12">
+                    <div>
+                      <h1 className="text-4xl font-bold">Address :</h1>
+                      <h1 className="text-4xl font-bold">{userAddress}</h1>
+                    </div>
+                    <div>
+                      <h1 className="text-4xl font-bold">Balance :</h1>
+                      <ShowBalance />
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-8">
+                    <label className="text-4xl font-bold">Choose file</label>
+                    <div className="flex flex-row space-y-4">
+                      <input type="file" disabled={uploadedFile} onChange={changeHandler} />
+                      <button onClick={submitIPFS} disabled={uploadedFile} className="bg-black text-white p-4 rounded-lg">
+                        {uploadingFile}
+                      </button>
+                    </div>
+                    {uploadedFile && (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`}
+                        className="w-64 h-64"
+                        alt="ipfs image"
+                      />
+                    )}
+                    <input type='text' placeholder='NFT Name' value={nftName} onChange={(e) => setNftName(e.target.value)} />
+                    {sending ? (<button className="bg-black text-white p-4 rounded-lg">Creating NFT...</button>)
+                      : (
+                        cid && nftName ? (
+                          <button
+                            className="bg-black text-white p-4 rounded-lg"
+                            onClick={async () => {
+                              setSending(true);
+                              const result = await mintToken(`${nftName}|${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`);
+                              console.log('UI : ', result);
+                              setSending(false);
+                              setNftName('');
+                              setUploadedFile(false);
+                              setUploadingFile('Upload to IPFS');
+                              setSelectedFile();
+                              setCid('');
+                            }}
+                          >Create NFT</button>
+                        ) :
+                          (<button className="bg-black text-white p-4 rounded-lg opacity-50" disabled>Upload a file then enter a name...</button>)
+                      )}
+                    <ShowNFTS userSeed={seed} />
+                  </div>
+
+
+                {/* </div>
               </div>
-              <div>
-                  <h1 className="text-4xl font-bold">Balance :</h1>
-                  <ShowBalance />
-              </div>
-          </div>
-          <div className="flex flex-col space-y-8">
-              <label className="text-4xl font-bold">Choose file</label>
-              <div className="flex flex-row space-y-4">
-                <input type="file" disabled={uploadedFile} onChange={changeHandler} />
-                <button onClick={submitIPFS} disabled={uploadedFile} className="bg-black text-white p-4 rounded-lg">
-                  {uploadingFile}
-                </button>
-              </div>
-              {uploadedFile && (
-                <img
-                  src={`${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`}
-                  className="w-64 h-64"
-                  alt="ipfs image"
-                />
-              )}
-              <input type='text' placeholder='NFT Name' value={nftName} onChange={(e) => setNftName(e.target.value)} />
-              {sending ? (<button className="bg-black text-white p-4 rounded-lg">Creating NFT...</button>)
-              : (
-              cid && nftName ? (
-                <button
-                className="bg-black text-white p-4 rounded-lg"
-                onClick={async () => {
-                  setSending(true);
-                  const result = await mintToken(`${nftName}|${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`);
-                  console.log('UI : ', result);
-                  setSending(false);
-                  setNftName('');
-                  setUploadedFile(false);
-                  setUploadingFile('Upload to IPFS');
-                  setSelectedFile();
-                  setCid('');
-                }}
-                >Create NFT</button>
-              ) :
-              (<button className="bg-black text-white p-4 rounded-lg opacity-50" disabled>Upload a file then enter a name...</button>)
-              )}
-              <ShowNFTS userSeed={seed} />
-          </div>
-          <Footer />
+            </div>
+          </div> */}
+
+
+        {/* </div> */}
+        <Footer />
       </main>
     </Account>
   );
@@ -125,16 +145,31 @@ export default function ProfilePage() {
 
   return (
     <XRPLClient network={Networks.Testnet}>
-      {seed ? (
-        <Wallet seed={seed}>
-          <Profile seed={seed} />
-        </Wallet>
-      ) : (
-        <div className="flex min-h-screen flex-col items-center p-24">
-          <input type="text" placeholder="Your Seed" value={userInput} onChange={(e) => setUserInput(e.target.value)} />
-          <button onClick={() => setSeed(userInput)}>Load Wallet</button>
-        </div>
-      )}
+      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        {seed ? (
+          <Wallet seed={seed}>
+            <Profile seed={seed} />
+          </Wallet>
+        ) : (
+          <div class="fixed flex items-center justify-center">
+            <div class="relative w-auto max-w-md mx-auto my-6">
+              <div class="relative bg-white p-6 rounded-xl shadow-xl">
+
+                <div class="flex flex-col items-center justify-center space-y-4">
+                  <div class="flex flex-col items-center p-10">
+                    <h1 class="text-2xl font-semibold mb-4">Connect your wallet</h1>
+                    <input type="text" placeholder="Your Seed" value={userInput} onChange={(e) => setUserInput(e.target.value)} class="mt-1 mb-6 p-2 block w-full border border-gray-300 rounded-md shadow-sm" />
+                    <button onClick={() => setSeed(userInput)} class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600">Load Wallet</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Footer />
+      </main>
     </XRPLClient>
   );
 }

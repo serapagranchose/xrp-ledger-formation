@@ -4,8 +4,9 @@ import Footer from "../components/footer";
 import { useEffect, useState } from "react";
 import { Client, Wallet, convertHexToString } from "xrpl";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
-function NFTInfos({ token, updateShow, updateOfferIndex, client, show }) {
+function NFTInfos({ setOfferAmount, setSelectedNFT, token, updateShow, updateOfferIndex, client, show }) {
   const [sellOffers, setSellOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
 
@@ -65,8 +66,11 @@ function NFTInfos({ token, updateShow, updateOfferIndex, client, show }) {
                         <button
                           className="bg-black text-white rounded-md px-4 py-2 "
                           onClick={async () => {
+                            console.log('ttttt ', token.NFTokenID)
+                            setSelectedNFT(token.NFTokenID);
                             changeShow(true);
                             changeOfferIndex(offer.nft_offer_index);
+                            setOfferAmount(offer.amount);
                             setLoadingOffers(false);
                             setSellOffers(false)
                           }}
@@ -92,9 +96,12 @@ function ShowSome() {
   const [show, setShow] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const [offerIndex, setOfferIndex] = useState('');
+  const [offerAmount, setOfferAmount] = useState("");
   const [userSeed, setUserSeed] = useState('');
   const [ttokens, setTokens] = useState();
   const router = useRouter();
+  const [selectedNFT, setSelectedNFT] = useState("");
+  const [seller, setSeller] = useState("");
 
   const updateShow = (req) => {
     setShow(req);
@@ -120,6 +127,38 @@ function ShowSome() {
       brokerWallet = Wallet.fromSeed(process.env.NEXT_PUBLIC_BROKER_SECRET);
       getAllNFTS();
     });
+  }
+
+  const sendPaiement = async (seller) => {
+    const brokaWallet = Wallet.fromSeed(process.env.NEXT_PUBLIC_BROKER_SECRET);
+    setOfferAmount(offerAmount / 1000000);
+    console.log('A account : ', brokaWallet?.classicAddress);
+    console.log('B destination : ', seller);
+    console.log('C amount : ', offerAmount);
+    const tx = {
+      "TransactionType": "Payment",
+      "Account": brokaWallet?.classicAddress,
+      "Destination": seller,
+      "Amount": offerAmount,
+    };
+    const submitted_tx = await client.submitAndWait(tx, {
+      autofill: true,
+      wallet: brokaWallet,
+    })
+    console.log('Payment : ', submitted_tx);
+  }
+
+  const sendMoneyToSeller = async (nftId) => {
+    const req = await axios.post('https://docs-demo.xrp-testnet.quiknode.pro/', {
+      "method": 'nft_history',
+      "params": [{
+        "nft_id": nftId
+      }],
+      "id": 1,
+      "jsonrpc": "2.0",
+    })
+    console.log("transactions : ", req.data.result.transactions)
+    return req.data.result.transactions[1].tx.Account;
   }
 
   const getSource = (uri) => {
@@ -153,7 +192,7 @@ function ShowSome() {
                         <h1 className="text-xl font-bold">Name : {getSource(token.URI).split('|')[0]}</h1>
                       </div>
                     </div>
-                    <NFTInfos token={token} key={token.id} updateShow={updateShow} client={client} show={show} updateOfferIndex={updateOfferIndex} />
+                    <NFTInfos setOfferAmount={setOfferAmount} setSelectedNFT={setSelectedNFT} token={token} key={token.id} updateShow={updateShow} client={client} show={show} updateOfferIndex={updateOfferIndex} />
                   </div>
                 </div>
 
@@ -181,26 +220,34 @@ function ShowSome() {
               disabled={userSeed === ''}
               onClick={async () => {
                 setAccepting(true);
-                console.log('Offer Index : ', offerIndex);
-                const userWallet = Wallet.fromSeed(userSeed);
+                console.log('Selected NFT : ', selectedNFT);
+                const seller = await sendMoneyToSeller(selectedNFT);
+                console.log('Seller : ', seller)
                 try {
-                  const tx = {
-                    "TransactionType": "NFTokenAcceptOffer",
-                    "Account": userWallet.classicAddress,
-                    "NFTokenSellOffer": offerIndex,
-                  }
-                  const submitted_tx = await client.submitAndWait(tx, {
-                    autofill: true,
-                    wallet: userWallet,
-                  })
-                  console.log('Accept Offer : ', submitted_tx);
-                  router.refresh();
+                  await sendPaiement(seller);
                 } catch (error) {
                   console.log(error);
                 } finally {
-                  setAccepting(false);
-                  setShow(false);
-                  setUserSeed('');
+                  console.log('Offer Index : ', offerIndex);
+                  const userWallet = Wallet.fromSeed(userSeed);
+                  try {
+                    const tx = {
+                      "TransactionType": "NFTokenAcceptOffer",
+                      "Account": userWallet.classicAddress,
+                      "NFTokenSellOffer": offerIndex,
+                    }
+                    const submitted_tx = await client.submitAndWait(tx, {
+                      autofill: true,
+                      wallet: userWallet,
+                    })
+                    console.log('Accept Offer : ', submitted_tx);
+                  } catch (error) {
+                    console.log(error);
+                  } finally {
+                    setAccepting(false);
+                    setShow(false);
+                    setUserSeed('');
+                  }
                 }
               }}
             >

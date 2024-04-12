@@ -11,8 +11,7 @@ import MetaMaskAuthButton from "../buttons/metamask-auth";
 
 
 
-const Navbar = ({ }: {
-}) => {
+const Navbar = ({ }) => {
   const [isNavbarToggle, setIsNavbarToggle] = useState(false)
   const host = typeof window !== "undefined" ? window.location.host : "defaultHost";
 

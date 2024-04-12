@@ -11,8 +11,7 @@ import MetaMaskAuthButton from "../buttons/metamask-auth";
 
 
 
-const Navbar = ({ }: {
-}) => {
+const Navbar = ({ }) => {
   const [isNavbarToggle, setIsNavbarToggle] = useState(false)
   const host = typeof window !== "undefined" ? window.location.host : "defaultHost";
 
@@ -68,6 +67,9 @@ const Navbar = ({ }: {
             </li>
             <li>
               <Link href="/contact" onClick={toggleMobileNavbar} className="block py-2 pr-4 pl-3 hover:text-gray-400 lg:dark:hover:bg-transparent">contact</Link>
+            </li>
+            <li>
+              <Link href='/profile' onClick={toggleMobileNavbar} className="block py-2 pr-4 pl-3 hover:text-gray-400 lg:dark:hover:bg-transparent">profile</Link>
             </li>
           </ul>
         </div>

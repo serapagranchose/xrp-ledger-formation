@@ -5,24 +5,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { MetaMaskProvider } from "@metamask/sdk-react";
-
-import MetaMaskAuthButton from "../buttons/metamask-auth";
-
-
 
 const Navbar = ({ }) => {
   const [isNavbarToggle, setIsNavbarToggle] = useState(false)
-  const host = typeof window !== "undefined" ? window.location.host : "defaultHost";
-
-  const sdkOptions = {
-    logging: { developerMode: false },
-    checkInstallationImmediately: false,
-    dappMetadata: {
-      name: "Next-Metamask-Boilerplate",
-      url: host, // using the host constant defined above
-    },
-  };
 
   const toggleMobileNavbar = () => {
     setIsNavbarToggle(!isNavbarToggle)
@@ -42,9 +27,6 @@ const Navbar = ({ }) => {
           <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">DApp</span>
         </Link>
         <div className="flex items-center lg:order-2">
-          <MetaMaskProvider debug={false} sdkOptions={sdkOptions}>
-            <MetaMaskAuthButton />
-          </MetaMaskProvider>
           <button
             className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
             onClick={toggleMobileNavbar}

@@ -23,7 +23,7 @@ export default function BurnNFT({ id, uri }) {
       console.log(error);
     }
   };
-
+ 
   return (
     <button
     className="bg-black text-white p-4 rounded-lg h-12 m-4"

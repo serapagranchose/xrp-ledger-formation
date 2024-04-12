@@ -8,7 +8,7 @@ export default function ShowNFTS({ userSeed }) {
   const userWallet = Wallet.fromSeed(userSeed);
   const brokerWallet = Wallet.fromSeed(process.env.NEXT_PUBLIC_BROKER_SECRET)
   const tokens = useTokens();
-
+ 
   const [creatingSellOffer, setCreatingSellOffer] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [price, setPrice] = useState('');

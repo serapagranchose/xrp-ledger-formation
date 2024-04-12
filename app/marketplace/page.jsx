@@ -15,7 +15,7 @@ function NFTInfos ({ token, updateShow, updateOfferIndex, show }) {
   const changeOfferIndex = (req) => {
     updateOfferIndex(req);
   }
-
+ 
   const changeShow = (req) => {
     updateShow(req);
   }

@@ -6,4 +6,4 @@ export default function ShowBalance() {
   return (
     <h1 className="text-4xl font-bold">{ balance } XRP</h1>
   );
-}
+} 

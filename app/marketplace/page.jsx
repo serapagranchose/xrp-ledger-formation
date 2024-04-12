@@ -19,7 +19,7 @@ function NFTInfos ({ token, updateShow, updateOfferIndex, show }) {
   const changeShow = (req) => {
     updateShow(req);
   }
-
+ 
   return (
     <>
       <button

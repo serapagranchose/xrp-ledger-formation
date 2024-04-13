@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useTokens } from '@nice-xrpl/react-xrpl';
 import BurnNFT from "./../components/BurnNFT";
 import { Client, Wallet, convertHexToString } from 'xrpl';
 
@@ -47,48 +46,84 @@ export default function ShowNFTS({ tokens, getAllNFTS, userSeed }) {
     connectClient();
   }, []);
 
+  const Dropdown = ({ token }) => {
+    const [isDropOpen, setDropDown] = useState(false);
+
+    return (
+      <div className="inline-block text-left">
+        <button
+          type="button"
+          className="mt-1.5 mx-1 w-2 h-5 px-3 border-0 inline-flex justify-center rounded-md border-gray-300 bg-gray-300 font-bold text-black"
+          aria-expanded={isDropOpen ? 'true' : 'false'}
+          onClick={() => setDropDown(!isDropOpen)}
+        >
+          ...
+        </button>
+
+        {isDropOpen && (
+          <ul className="origin-top-right absolute right-0 mt-2 w-52 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            <li role="none">
+              <a role="menuitem">
+                <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full" onClick={() => {
+                  navigator.clipboard.writeText(token.NFTokenID);
+                }}>
+                  Copy ID
+                </button>
+              </a>
+            </li>
+            <li role="none">
+              <a role="menuitem">
+                <BurnNFT getAllNFTS={getAllNFTS} client={client} userWallet={userWallet} id={token.NFTokenID} uri={getSource(token.URI).split('|')[1]?.substring(getSource(token.URI).split('|')[1].length - 46)} />
+              </a>
+            </li>
+            <li role="none">
+              <a role="menuitem">
+                <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full" onClick={() => {
+                  setIsOpen(true);
+                  setTokenId(token.NFTokenID);
+                }}>
+                  Sell NFT
+                </button>
+              </a>
+            </li>
+          </ul>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      <h1 className="text-4xl font-bold">NFTs ({tokens?.length}) :</h1>
+      <h1 className="text-4xl font-bold mt-4">NFTs ({tokens?.length}) :</h1>
       <div className="flex flex-row space-y-2 bg-gray-100 space-around m-4 flex-wrap center">
         {tokens?.length ?
-          tokens.map((token) => (
-            <div className="items-center flex flex-col space-y-4 m-4" key={token.NFTokenID}>
+          tokens.map((token, index) => (
+
+            <div className="items-center flex flex-col space-y-4 m-2" key={token.NFTokenID}>
               <img
                 src={getSource(token.URI).split('|')[1]}
                 className="w-64 h-64"
                 alt="ipfs image"
               />
               <div className="flex flex-row space-x-4 items-center mr-2 ml-2">
-                <div className='flex flex-col'>
+                <div className='flex flex-raw'>
                   <h1 className="text-xl font-bold">Name : {getSource(token.URI).split('|')[0]}</h1>
-                  <button className='bg-black text-white p-4 rounded-lg' onClick={() => {
-                    navigator.clipboard.writeText(token.NFTokenID);
-                  }}>
-                    Copy ID
-                  </button>
+                  <Dropdown key={index} token={token} />
                 </div>
-                <BurnNFT getAllNFTS={getAllNFTS} client={client} userWallet={userWallet} id={token.NFTokenID} uri={getSource(token.URI).split('|')[1]?.substring(getSource(token.URI).split('|')[1].length - 46)} />
-                <button
-                  className="bg-black text-white p-4 rounded-lg h-12 m-4"
-                  onClick={() => {
-                    setIsOpen(true);
-                    setTokenId(token.NFTokenID)
-                  }}
-                >
-                  Sell NFT
-                </button>
+
               </div>
             </div>
           ))
-          : <h1 className="text-2xl font-bold">No NFTs found...</h1>}
+          : <h1 className="text-2xl font-bold"><span className="inline-block h-4 w-4 animate-spin rounded-full mb-0.5 mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+            role="status">
+          </span>No NFTs found...</h1>}
       </div>
       {isOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg">
-            <h1 className="text-4xl font-bold">Sell NFT</h1>
+            <h1 className="text-4xl font-bold mb-5 flex flex-col items-center ">Sell NFT</h1>
             <div className="flex flex-col space-y-4">
-              <input className="outline-none border-2 border-gray-300 rounded-md" type="text" placeholder="Price (drops)" value={price} onChange={(e) => { setPrice(e.currentTarget.value) }} />
+              <input className="mb-4 outline-none border-2 border-gray-300 rounded-md" type="text" placeholder="Price (drops)" value={price} onChange={(e) => { setPrice(e.currentTarget.value) }} />
               <button
                 className="bg-black text-white p-4 rounded-lg"
                 onClick={async () => {
@@ -119,6 +154,14 @@ export default function ShowNFTS({ tokens, getAllNFTS, userSeed }) {
                 {creatingSellOffer ? (<div><span className="inline-block h-3 w-3 animate-spin rounded-full mb-0.5 mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
                   role="status">
                 </span>Creating...</div>) : 'Create Sell Offer'}
+              </button>
+              <button
+                className="bg-red-500 text-white p-4 rounded-lg"
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              >
+                Cancel
               </button>
             </div>
           </div>

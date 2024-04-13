@@ -119,7 +119,7 @@ function Profile({ seed }) {
 
             {isModalOpen ? (
 
-              <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+              <div className="flex items-center justify-center fixed inset-0 bg-gray-800 bg-opacity-20">
                 <div className="flex flex-col bg-white p-8 rounded-lg space-y-4">
                   <div className="flex flex-col space-y-8">
                     <label className="flex flex-col text-4xl font-bold items-center">Choose file</label>
@@ -138,7 +138,7 @@ function Profile({ seed }) {
                     )}
                     <input className="outline-none border-2 border-gray-300 rounded-md" type='text' placeholder='NFT Name' value={nftName} onChange={(e) => setNftName(e.target.value)} />
                     {sending ? (<button className="bg-black text-white p-4 rounded-lg">
-                      <span className="inline-block h-4 w-4 animate-spin rounded-full mb-0.5 mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+                      <span className="inline-block h-3 w-3 animate-spin rounded-full mb-0.5 mr-1 border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
                         role="status">
                       </span>Creating NFT...
                     </button>)
@@ -165,6 +165,7 @@ function Profile({ seed }) {
                               setSending(false);
                               getAllNFTS({ address: minterWallet?.classicAddress });
                               setNftName('');
+                              setModalOpen(false);
                               setUploadedFile(false);
                               setUploadingFile('Upload to IPFS');
                               setSelectedFile();

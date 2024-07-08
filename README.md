@@ -1,3 +1,12 @@
+<div align="center">
+  <a href="https://github.com/serapagranchose/xrp-ledger-formation">
+    <img src="assets/images/thumbnail.png" alt="thumbnail" width="750">
+  </a>
+
+  <h1>xrp-ledger-formation</h1>
+  <p></p>
+</div>
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

@@ -3,9 +3,11 @@
     <img src="assets/images/thumbnail.png" alt="thumbnail" width="750">
   </a>
 
-  <h1>xrp-ledger-formation</h1>
+  <h1>xrp-ledger-formation by [chptlouis](https://github.com/chptlouis) and [manaarii](https://github.com/manaarii)</h1>
   <p></p>
 </div>
+
+This project has been made by 2 Epitech students for a school projects.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
